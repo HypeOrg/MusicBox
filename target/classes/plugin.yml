@@ -1,0 +1,4 @@
+name: MusicBox
+main: me.anomalousrei.musicbox.NoteBlockPlayerMain
+version: 2
+authors: [xxmicloxx, michidk, AnomalousRei]
