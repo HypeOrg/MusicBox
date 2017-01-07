@@ -1,8 +1,5 @@
 package me.anomalousrei.musicbox;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.*;
 import org.bukkit.Bukkit;
@@ -13,17 +10,79 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequencer;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
 
 public class NoteBlockPlayerMain extends JavaPlugin {
     public static NoteBlockPlayerMain plugin;
+    public static BukkitTask playing;
+    public static String[] songs;
+    public static Integer[] length;
+    private static Sequencer currentS;
+    public static int current = -1;
 
     public void onEnable() {
+        songs = new String[]{"HOUSE.MID", "overworld-2.mid", "pirates.mid", "to_town.mid", "rudolph.mid", "deckthe.mid", "s-night.mid", "rock_ar.mid"};
+        length = new Integer[]{290, 95, 78, 111, 138, 87, 105, 120};
+        //songs = new String[]{"to_town.mid", "rudolph.mid", "deckthe.mid", "s-night.mid", "rock_ar.mid"};
+        //length = new Integer[]{111, 138, 87, 105, 120};
         plugin = this;
         registerCommands();
+        try {
+            onTask();
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onTask() throws MidiUnavailableException, InvalidMidiDataException, IOException {
+        if (currentS != null)
+            currentS.stop();
+        currentS = null;
+        if (playing != null)
+            playing.cancel();
+        playing = null;
+        int prev = current;
+        current = -1;
+        while (current == -1) {
+            Random rng = new Random();
+            int gen = rng.nextInt(songs.length);
+            if (gen == prev) continue;
+            current = gen;
+        }
+        currentS = MidiUtil.playMidi(new File(getDataFolder() + "/" + songs[current]), 1F);
+        playing = Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    onTask();
+                } catch (MidiUnavailableException e) {
+                    e.printStackTrace();
+                } catch (InvalidMidiDataException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, (length[current] * 20) + 40);
     }
 
     public void onDisable() {
+        if (currentS != null)
+            currentS.stop();
+        currentS = null;
+        if (playing != null)
+            playing.cancel();
         Bukkit.getScheduler().cancelTasks(this);
     }
 

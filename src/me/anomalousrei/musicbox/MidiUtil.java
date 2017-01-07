@@ -1,24 +1,17 @@
 package me.anomalousrei.musicbox;
 
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+
+import javax.sound.midi.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
-
-import org.bukkit.Sound;
-import org.bukkit.entity.Player;
-
-public class MidiUtil
-{
-    private static void playMidi(Sequence seq, float tempo, Set<Player> listeners)
-            throws InvalidMidiDataException, IOException, MidiUnavailableException
-    {
+public class MidiUtil {
+    private static Sequencer playMidi(Sequence seq, float tempo)
+            throws InvalidMidiDataException, IOException, MidiUnavailableException {
         Sequencer sequencer = MidiSystem.getSequencer(false);
         sequencer.setSequence(seq);
         sequencer.open();
@@ -26,43 +19,63 @@ public class MidiUtil
         // slow it down just a bit
         sequencer.setTempoFactor(tempo);
 
-        NoteBlockReceiver noteblockRecv = new NoteBlockReceiver(listeners);
+        NoteBlockReceiver noteblockRecv = new NoteBlockReceiver();
         sequencer.getTransmitter().setReceiver(noteblockRecv);
         sequencer.start();
+        return sequencer;
     }
 
-    public static void playMidi(File file, float tempo, Set<Player> listeners)
-            throws InvalidMidiDataException, IOException, MidiUnavailableException
-    { playMidi(MidiSystem.getSequence(file), tempo, listeners); }
+    public static Sequencer playMidi(File file, float tempo)
+            throws InvalidMidiDataException, IOException, MidiUnavailableException {
+        return playMidi(MidiSystem.getSequence(file), tempo);
+    }
 
-    public static void playMidi(InputStream stream, float tempo, Set<Player> listeners)
-            throws InvalidMidiDataException, IOException, MidiUnavailableException
-    { playMidi(MidiSystem.getSequence(stream), tempo, listeners); }
+    public static Sequencer playMidi(InputStream stream, float tempo)
+            throws InvalidMidiDataException, IOException, MidiUnavailableException {
+        return playMidi(MidiSystem.getSequence(stream), tempo);
+    }
 
-    public static boolean playMidiQuietly(File file, float tempo, Set<Player> listeners)
-    {
-        try { MidiUtil.playMidi(file, tempo, listeners); }
-        catch (MidiUnavailableException e) { e.printStackTrace(); return false; }
-        catch (InvalidMidiDataException e) { e.printStackTrace(); return false; }
-        catch (IOException e) { e.printStackTrace(); return false; }
+    public static boolean playMidiQuietly(File file, float tempo) {
+        try {
+            MidiUtil.playMidi(file, tempo);
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         return true;
     }
-    public static boolean playMidiQuietly(InputStream stream, float tempo, Set<Player> listeners)
-    {
-        try { MidiUtil.playMidi(stream, tempo, listeners); }
-        catch (MidiUnavailableException e) { e.printStackTrace(); return false; }
-        catch (InvalidMidiDataException e) { e.printStackTrace(); return false; }
-        catch (IOException e) { e.printStackTrace(); return false; }
+
+    public static boolean playMidiQuietly(InputStream stream, float tempo) {
+        try {
+            MidiUtil.playMidi(stream, tempo);
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         return true;
     }
 
-    public static boolean playMidiQuietly(File file, Set<Player> listeners)
-    { return playMidiQuietly(file, 1.0f, listeners); }
+    public static boolean playMidiQuietly(File file) {
+        return playMidiQuietly(file, 1.0f);
+    }
 
-    public static boolean playMidiQuietly(InputStream stream, Set<Player> listeners)
-    { return playMidiQuietly(stream, 1.0f, listeners); }
+    public static boolean playMidiQuietly(InputStream stream, Set<Player> listeners) {
+        return playMidiQuietly(stream, 1.0f);
+    }
 
     // provided by github.com/sk89q/craftbook
     private static final int[] instruments = {
@@ -84,20 +97,24 @@ public class MidiUtil
             1, 1, 1, 1, 1, 2, 4, 3, // 128
     };
 
-    public static Sound patchToInstrument(int patch)
-    {
+    public static Sound patchToInstrument(int patch) {
         // look up the instrument matching the patch
-        switch (instruments[patch])
-        {
-            case 1: return Sound.NOTE_BASS_GUITAR;
-            case 2: return Sound.NOTE_SNARE_DRUM;
-            case 3: return Sound.NOTE_STICKS;
-            case 4: return Sound.NOTE_BASS_DRUM;
-            case 5: return Sound.NOTE_PLING;
-            case 6: return Sound.NOTE_BASS;
+        switch (instruments[patch]) {
+            case 1:
+                return Sound.BLOCK_NOTE_BASS;
+            case 2:
+                return Sound.BLOCK_NOTE_SNARE;
+            case 3:
+                return Sound.BLOCK_NOTE_HARP;
+            case 4:
+                return Sound.BLOCK_NOTE_BASEDRUM;
+            case 5:
+                return Sound.BLOCK_NOTE_PLING;
+            case 6:
+                return Sound.BLOCK_NOTE_BASS;
         }
 
         // if no instrument match is found, use piano
-        return Sound.NOTE_PIANO;
+        return Sound.BLOCK_NOTE_HARP;
     }
 }

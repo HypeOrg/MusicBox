@@ -3,14 +3,14 @@ package me.anomalousrei.musicbox;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class Commands {
 
@@ -20,27 +20,28 @@ public class Commands {
         plugin = pl;
     }
 
-    @Command(aliases = {"play", "song", "mbplay"},
-            desc = "Play a song",
-            usage = "<song> <tempo>",
-            max = 2,
-            min = 2)
-    @CommandPermissions("musicbox.admin")
-    public void play(CommandContext args, CommandSender sender) {
-        try {
-            MidiUtil.playMidi(new File(NoteBlockPlayerMain.plugin.getDataFolder(), args.getString(0)), Float.parseFloat(args.getString(1)), null);
-            Bukkit.broadcastMessage(ChatColor.GOLD + "[Jukebox] " + ChatColor.YELLOW + sender.getName() + " put on " + args.getString(0));
-        } catch (Exception e) {
-            sender.sendMessage(ChatColor.RED + "Could not play midi.");
-            sender.sendMessage(ChatColor.RED + "Error: " + e.getMessage());
-        }
+    public static ArrayList<UUID> muted = new ArrayList<UUID>();
+
+    @Command(aliases = {"nosong"},
+            desc = "Mute song")
+    public void mute(CommandContext args, CommandSender sender) {
+        if (muted.contains(((Player) sender).getUniqueId()))
+            muted.remove(((Player) sender).getUniqueId());
+        else muted.add(((Player) sender).getUniqueId());
     }
 
-    @Command(aliases = {"mbstop", "stopsong", "stp"},
-            desc = "Stop a song")
-    @CommandPermissions("musicbox.admin")
-    public void stop(CommandContext args, CommandSender sender) {
-        Bukkit.broadcastMessage(ChatColor.GOLD + "[Jukebox] " + ChatColor.YELLOW + sender.getName() + " stopped all playing songs!");
-        NoteBlockPlayerMain.plugin.getServer().getPluginManager().callEvent(new SongEndEvent());
+    @Command(aliases = {"skipsong"},
+            desc = "Skip song")
+    @CommandPermissions("skytopia.admin")
+    public void skip(CommandContext args, CommandSender sender) {
+        try {
+            plugin.onTask();
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
