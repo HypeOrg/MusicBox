@@ -14,7 +14,7 @@ import java.util.Random;
 
 
 public class NoteBlockReceiver implements Receiver {
-    private static final float VOLUME_RANGE = 4.0f;
+    private static final float VOLUME_RANGE = 2.0f;
     private final World w = Bukkit.getWorld("world");
     private final Random rng = new Random();
     public boolean active = true;
@@ -62,12 +62,12 @@ public class NoteBlockReceiver implements Receiver {
 
         for (Player p : w.getEntitiesByClass(Player.class))
             if (!Commands.muted.contains(p.getUniqueId())) {
-                p.playSound(new Location(w, 57.5, 113.5, 1333.5), instrument, volume, pitch);
+                p.playSound(new Location(w, -1393.5, 128.5, -200.5), instrument, volume, pitch);
             }
         if (instrument == Sound.BLOCK_NOTE_BASS || instrument == Sound.BLOCK_NOTE_BASEDRUM)
-            w.spawnParticle(Particle.HEART, new Location(w, 57.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2)), 114.5 + Math.random(), 1333.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2))), 1);
+            w.spawnParticle(Particle.HEART, new Location(w, -1393.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2)), 129.5 + Math.random(), -200.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2))), 1);
         else
-            w.spawnParticle(Particle.CRIT, new Location(w, 57.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2)), 114.5 + Math.random(), 1333.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2))), 1);
+            w.spawnParticle(Particle.CRIT, new Location(w, -1393.5 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2)), 129.5 + Math.random(), -200 + (rng.nextBoolean() ? Math.random() / 2 : -(Math.random() / 2))), 1);
     }
 
     @Override

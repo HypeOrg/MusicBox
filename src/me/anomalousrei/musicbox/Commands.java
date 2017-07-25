@@ -22,7 +22,7 @@ public class Commands {
 
     public static ArrayList<UUID> muted = new ArrayList<UUID>();
 
-    @Command(aliases = {"nosong"},
+    @Command(aliases = {"nosong", "volume"},
             desc = "Mute song")
     public void mute(CommandContext args, CommandSender sender) {
         if (muted.contains(((Player) sender).getUniqueId()))

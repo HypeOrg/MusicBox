@@ -23,13 +23,11 @@ public class NoteBlockPlayerMain extends JavaPlugin {
     public static NoteBlockPlayerMain plugin;
     public static BukkitTask playing;
     public static String[] songs;
-    public static Integer[] length;
     private static Sequencer currentS;
     public static int current = -1;
 
     public void onEnable() {
-        songs = new String[]{"HOUSE.MID", "overworld-2.mid", "pirates.mid", "to_town.mid", "rudolph.mid", "deckthe.mid", "s-night.mid", "rock_ar.mid"};
-        length = new Integer[]{290, 95, 78, 111, 138, 87, 105, 120};
+        songs = new String[]{"overworld.mid", "overworld-2.mid", "overworld-3.mid", "allofme.mid"};
         //songs = new String[]{"to_town.mid", "rudolph.mid", "deckthe.mid", "s-night.mid", "rock_ar.mid"};
         //length = new Integer[]{111, 138, 87, 105, 120};
         plugin = this;
@@ -61,11 +59,12 @@ public class NoteBlockPlayerMain extends JavaPlugin {
             current = gen;
         }
         currentS = MidiUtil.playMidi(new File(getDataFolder() + "/" + songs[current]), 1F);
-        playing = Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+        playing = Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
             @Override
             public void run() {
                 try {
-                    onTask();
+                    if (!currentS.isRunning())
+                        onTask();
                 } catch (MidiUnavailableException e) {
                     e.printStackTrace();
                 } catch (InvalidMidiDataException e) {
@@ -74,7 +73,7 @@ public class NoteBlockPlayerMain extends JavaPlugin {
                     e.printStackTrace();
                 }
             }
-        }, (length[current] * 20) + 40);
+        }, 0L, 20L);
     }
 
     public void onDisable() {
